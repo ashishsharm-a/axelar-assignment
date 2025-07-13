@@ -9,7 +9,6 @@ This Terraform module provisions:
 ## Usage
 
 ```bash
-cd addons/terraform
 terraform init
 terraform apply
 ```
