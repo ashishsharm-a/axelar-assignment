@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: axelarnet/axelar-core
+  tag: v1.2.1
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "4Gi"
+    cpu: "2000m"
+  limits:
+    memory: "8Gi"
+    cpu: "4000m"
+
+persistence:
+  enabled: true
+  size: 50Gi
+
+service:
+  type: ClusterIP
+  rpcPort: 26657
+  metricsPort: 26660

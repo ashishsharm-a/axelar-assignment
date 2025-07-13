@@ -1,0 +1,21 @@
+{
+    "annotations": {
+      "list": []
+    },
+    "panels": [
+      {
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "tendermint_consensus_height",
+            "legendFormat": "Block Height",
+            "refId": "A"
+          }
+        ],
+        "title": "Block Height",
+        "type": "graph"
+      }
+    ],
+    "title": "Axelar Node Overview",
+    "timezone": "browser"
+  }

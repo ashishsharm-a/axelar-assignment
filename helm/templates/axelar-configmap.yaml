@@ -1,0 +1,1024 @@
+apiVersion: v1
+data:
+  app.toml: |-
+    # This is a TOML config file.
+    # For more information, see https://github.com/toml-lang/toml
+
+    ###############################################################################
+    ###                           Base Configuration                            ###
+    ###############################################################################
+
+    # The minimum gas prices a validator is willing to accept for processing a
+    # transaction. A transaction's fees must meet the minimum of any denomination
+    # specified in this config (e.g. 0.25token1;0.0001token2).
+    minimum-gas-prices = "0.007uaxl"
+
+    # default: the last 100 states are kept in addition to every 500th state; pruning at 10 block intervals
+    # nothing: all historic states will be saved, nothing will be deleted (i.e. archiving node)
+    # everything: all saved states will be deleted, storing only the current state; pruning at 10 block intervals
+    # custom: allow pruning options to be manually specified through 'pruning-keep-recent', 'pruning-keep-every', and 'pruning-interval'
+    pruning = "everything"
+
+    # These are applied if and only if the pruning strategy is custom.
+    pruning-keep-recent = "0"
+    pruning-keep-every = "0"
+    pruning-interval = "0"
+
+    # HaltHeight contains a non-zero block height at which a node will gracefully
+    # halt and shutdown that can be used to assist upgrades and testing.
+    #
+    # Note: Commitment of state will be attempted on the corresponding block.
+    halt-height = 0
+
+    # HaltTime contains a non-zero minimum block time (in Unix seconds) at which
+    # a node will gracefully halt and shutdown that can be used to assist upgrades
+    # and testing.
+    #
+    # Note: Commitment of state will be attempted on the corresponding block.
+    halt-time = 0
+
+    # MinRetainBlocks defines the minimum block height offset from the current
+    # block being committed, such that all blocks past this offset are pruned
+    # from Tendermint. It is used as part of the process of determining the
+    # ResponseCommit.RetainHeight value during ABCI Commit. A value of 0 indicates
+    # that no blocks should be pruned.
+    #
+    # This configuration value is only responsible for pruning Tendermint blocks.
+    # It has no bearing on application state pruning which is determined by the
+    # "pruning-*" configurations.
+    #
+    # Note: Tendermint block pruning is dependant on this parameter in conunction
+    # with the unbonding (safety threshold) period, state pruning and state sync
+    # snapshot parameters to determine the correct minimum value of
+    # ResponseCommit.RetainHeight.
+    min-retain-blocks = 0
+
+    # InterBlockCache enables inter-block caching.
+    inter-block-cache = true
+
+    # IndexEvents defines the set of events in the form {eventType}.{attributeKey},
+    # which informs Tendermint what to index. If empty, all events will be indexed.
+    #
+    # Example:
+    # ["message.sender", "message.recipient"]
+    index-events = []
+
+    ###############################################################################
+    ###                         Telemetry Configuration                         ###
+    ###############################################################################
+
+    [telemetry]
+
+    # Prefixed with keys to separate services.
+    service-name = ""
+
+    # Enabled enables the application telemetry functionality. When enabled,
+    # an in-memory sink is also enabled by default. Operators may also enabled
+    # other sinks such as Prometheus.
+    enabled = false
+
+    # Enable prefixing gauge values with hostname.
+    enable-hostname = false
+
+    # Enable adding hostname to labels.
+    enable-hostname-label = false
+
+    # Enable adding service to labels.
+    enable-service-label = false
+
+    # PrometheusRetentionTime, when positive, enables a Prometheus metrics sink.
+    prometheus-retention-time = 0
+
+    # GlobalLabels defines a global set of name/value label tuples applied to all
+    # metrics emitted using the wrapper functions defined in telemetry package.
+    #
+    # Example:
+    # [["chain_id", "cosmoshub-1"]]
+    global-labels = [
+    ]
+
+    ###############################################################################
+    ###                           API Configuration                             ###
+    ###############################################################################
+
+    [api]
+
+    # Enable defines if the API server should be enabled.
+    enable = true
+
+    # Swagger defines if swagger documentation should automatically be registered.
+    swagger = false
+
+    # Address defines the API server to listen on.
+    address = "tcp://0.0.0.0:1317"
+
+    # MaxOpenConnections defines the number of maximum open connections.
+    max-open-connections = 1000
+
+    # RPCReadTimeout defines the Tendermint RPC read timeout (in seconds).
+    rpc-read-timeout = 10
+
+    # RPCWriteTimeout defines the Tendermint RPC write timeout (in seconds).
+    rpc-write-timeout = 0
+
+    # RPCMaxBodyBytes defines the Tendermint maximum response body (in bytes).
+    rpc-max-body-bytes = 1000000
+
+    # EnableUnsafeCORS defines if CORS should be enabled (unsafe - use it at your own risk).
+    enabled-unsafe-cors = false
+
+    ###############################################################################
+    ###                           Rosetta Configuration                         ###
+    ###############################################################################
+
+    [rosetta]
+
+    # Enable defines if the Rosetta API server should be enabled.
+    enable = false
+
+    # Address defines the Rosetta API server to listen on.
+    address = ":8080"
+
+    # Network defines the name of the blockchain that will be returned by Rosetta.
+    blockchain = "app"
+
+    # Network defines the name of the network that will be returned by Rosetta.
+    network = "network"
+
+    # Retries defines the number of retries when connecting to the node before failing.
+    retries = 3
+
+    # Offline defines if Rosetta server should run in offline mode.
+    offline = false
+
+    ###############################################################################
+    ###                           gRPC Configuration                            ###
+    ###############################################################################
+
+    [grpc]
+
+    # Enable defines if the gRPC server should be enabled.
+    enable = true
+
+    # Address defines the gRPC server address to bind to.
+    address = "0.0.0.0:9090"
+
+    ###############################################################################
+    ###                        gRPC Web Configuration                           ###
+    ###############################################################################
+
+    [grpc-web]
+
+    # GRPCWebEnable defines if the gRPC-web should be enabled.
+    # NOTE: gRPC must also be enabled, otherwise, this configuration is a no-op.
+    enable = true
+
+    # Address defines the gRPC-web server address to bind to.
+    address = "0.0.0.0:9091"
+
+    # EnableUnsafeCORS defines if CORS should be enabled (unsafe - use it at your own risk).
+    enable-unsafe-cors = false
+
+    ###############################################################################
+    ###                        State Sync Configuration                         ###
+    ###############################################################################
+
+    # State sync snapshots allow other nodes to rapidly join the network without replaying historical
+    # blocks, instead downloading and applying a snapshot of the application state at a given height.
+    [state-sync]
+
+    # snapshot-interval specifies the block interval at which local state sync snapshots are
+    # taken (0 to disable). Must be a multiple of pruning-keep-every.
+    snapshot-interval = 0
+
+    # snapshot-keep-recent specifies the number of recent snapshots to keep and serve (0 to keep all).
+    snapshot-keep-recent = 2
+  config.toml: "# This is a TOML config file.\n# For more information, see https://github.com/toml-lang/toml\n\n#
+    NOTE: Any path below can be absolute (e.g. \"/var/myawesomeapp/data\") or\n# relative
+    to the home directory (e.g. \"data\"). The home directory is\n# \"$HOME/.tendermint\"
+    by default, but could be changed via $TMHOME env variable\n# or --home cmd flag.\n\n#######################################################################\n###
+    \                  Main Base Config Options                      ###\n#######################################################################\n\n#
+    TCP or UNIX socket address of the ABCI application,\n# or the name of an ABCI
+    application compiled in with the Tendermint binary\nproxy_app = \"tcp://127.0.0.1:26658\"\n\n#
+    A custom human readable name for this node\nmoniker = \"node\"\n\n# If this node
+    is many blocks behind the tip of the chain, FastSync\n# allows them to catchup
+    quickly by downloading blocks in parallel\n# and verifying their commits\nfast_sync
+    = true\n\n# Database backend: goleveldb | cleveldb | boltdb | rocksdb | badgerdb\n#
+    * goleveldb (github.com/syndtr/goleveldb - most popular implementation)\n#   -
+    pure go\n#   - stable\n# * cleveldb (uses levigo wrapper)\n#   - fast\n#   - requires
+    gcc\n#   - use cleveldb build tag (go build -tags cleveldb)\n# * boltdb (uses
+    etcd's fork of bolt - github.com/etcd-io/bbolt)\n#   - EXPERIMENTAL\n#   - may
+    be faster is some use-cases (random reads - indexer)\n#   - use boltdb build tag
+    (go build -tags boltdb)\n# * rocksdb (uses github.com/tecbot/gorocksdb)\n#   -
+    EXPERIMENTAL\n#   - requires gcc\n#   - use rocksdb build tag (go build -tags
+    rocksdb)\n# * badgerdb (uses github.com/dgraph-io/badger)\n#   - EXPERIMENTAL\n#
+    \  - use badgerdb build tag (go build -tags badgerdb)\ndb_backend = \"goleveldb\"\n\n#
+    Database directory\ndb_dir = \"data\"\n\n# Output level for logging, including
+    package level options\nlog_level = \"info\"\n\n# Output format: 'plain' (colored
+    text) or 'json'\nlog_format = \"plain\"\n\n##### additional base config options
+    #####\n\n# Path to the JSON file containing the initial validator set and other
+    meta data\ngenesis_file = \"config/genesis.json\"\n\n# Path to the JSON file containing
+    the private key to use as a validator in the consensus protocol\npriv_validator_key_file
+    = \"config/priv_validator_key.json\"\n\n# Path to the JSON file containing the
+    last sign state of a validator\npriv_validator_state_file = \"data/priv_validator_state.json\"\n\n#
+    TCP or UNIX socket address for Tendermint to listen on for\n# connections from
+    an external PrivValidator process\npriv_validator_laddr = \"\"\n\n# Path to the
+    JSON file containing the private key to use for node authentication in the p2p
+    protocol\nnode_key_file = \"config/node_key.json\"\n\n# Mechanism to connect to
+    the ABCI application: socket | grpc\nabci = \"socket\"\n\n# If true, query the
+    ABCI app on connecting to a new peer\n# so the app can decide if we should keep
+    the connection or not\nfilter_peers = false\n\n\n#######################################################################\n###
+    \                Advanced Configuration Options                  ###\n#######################################################################\n\n#######################################################\n###
+    \      RPC Server Configuration Options          ###\n#######################################################\n[rpc]\n\n#
+    TCP or UNIX socket address for the RPC server to listen on\nladdr = \"tcp://0.0.0.0:26657\"\n\n#
+    A list of origins a cross-domain request can be executed from\n# Default value
+    '[]' disables cors support\n# Use '[\"*\"]' to allow any origin\ncors_allowed_origins
+    = []\n\n# A list of methods the client is allowed to use with cross-domain requests\ncors_allowed_methods
+    = [\"HEAD\", \"GET\", \"POST\", ]\n\n# A list of non simple headers the client
+    is allowed to use with cross-domain requests\ncors_allowed_headers = [\"Origin\",
+    \"Accept\", \"Content-Type\", \"X-Requested-With\", \"X-Server-Time\", ]\n\n#
+    TCP or UNIX socket address for the gRPC server to listen on\n# NOTE: This server
+    only supports /broadcast_tx_commit\ngrpc_laddr = \"\"\n\n# Maximum number of simultaneous
+    connections.\n# Does not include RPC (HTTP&WebSocket) connections. See max_open_connections\n#
+    If you want to accept a larger number than the default, make sure\n# you increase
+    your OS limits.\n# 0 - unlimited.\n# Should be < {ulimit -Sn} - {MaxNumInboundPeers}
+    - {MaxNumOutboundPeers} - {N of wal, db and other open files}\n# 1024 - 40 - 10
+    - 50 = 924 = ~900\ngrpc_max_open_connections = 900\n\n# Activate unsafe RPC commands
+    like /dial_seeds and /unsafe_flush_mempool\nunsafe = false\n\n# Maximum number
+    of simultaneous connections (including WebSocket).\n# Does not include gRPC connections.
+    See grpc_max_open_connections\n# If you want to accept a larger number than the
+    default, make sure\n# you increase your OS limits.\n# 0 - unlimited.\n# Should
+    be < {ulimit -Sn} - {MaxNumInboundPeers} - {MaxNumOutboundPeers} - {N of wal,
+    db and other open files}\n# 1024 - 40 - 10 - 50 = 924 = ~900\nmax_open_connections
+    = 900\n\n# Maximum number of unique clientIDs that can /subscribe\n# If you're
+    using /broadcast_tx_commit, set to the estimated maximum number\n# of broadcast_tx_commit
+    calls per block.\nmax_subscription_clients = 100\n\n# Maximum number of unique
+    queries a given client can /subscribe to\n# If you're using GRPC (or Local RPC
+    client) and /broadcast_tx_commit, set to\n# the estimated # maximum number of
+    broadcast_tx_commit calls per block.\nmax_subscriptions_per_client = 5\n\n# How
+    long to wait for a tx to be committed during /broadcast_tx_commit.\n# WARNING:
+    Using a value larger than 10s will result in increasing the\n# global HTTP write
+    timeout, which applies to all connections and endpoints.\n# See https://github.com/tendermint/tendermint/issues/3435\ntimeout_broadcast_tx_commit
+    = \"20s\"\n\n# Maximum size of request body, in bytes\nmax_body_bytes = 1000000\n\n#
+    Maximum size of request header, in bytes\nmax_header_bytes = 1048576\n\n# The
+    path to a file containing certificate that is used to create the HTTPS server.\n#
+    Might be either absolute path or path related to Tendermint's config directory.\n#
+    If the certificate is signed by a certificate authority,\n# the certFile should
+    be the concatenation of the server's certificate, any intermediates,\n# and the
+    CA's certificate.\n# NOTE: both tls_cert_file and tls_key_file must be present
+    for Tendermint to create HTTPS server.\n# Otherwise, HTTP server is run.\ntls_cert_file
+    = \"\"\n\n# The path to a file containing matching private key that is used to
+    create the HTTPS server.\n# Might be either absolute path or path related to Tendermint's
+    config directory.\n# NOTE: both tls-cert-file and tls-key-file must be present
+    for Tendermint to create HTTPS server.\n# Otherwise, HTTP server is run.\ntls_key_file
+    = \"\"\n\n# pprof listen address (https://golang.org/pkg/net/http/pprof)\npprof_laddr
+    = \"localhost:6060\"\n\n#######################################################\n###
+    \          P2P Configuration Options             ###\n#######################################################\n[p2p]\n\n#
+    Address to listen for incoming connections\nladdr = \"tcp://0.0.0.0:26656\"\n\n#
+    Address to advertise to peers for them to dial\n# If empty, will use the same
+    port as the laddr,\n# and will introspect on the listener or use UPnP\n# to figure
+    out the address. ip and port are required\n# example: 159.89.10.97:26656\n# external_address
+    = \"\"\nexternal_address = \"\"\n# Comma separated list of seed nodes to connect
+    to\nseeds = \"\"\n\n# Comma separated list of nodes to keep persistent connections
+    to\npersistent_peers = \"\"\n\n# UPNP port forwarding\nupnp = false\n\n# Path
+    to address book\naddr_book_file = \"config/addrbook.json\"\n\n# Set true for strict
+    address routability rules\n# Set false for private or local networks\naddr_book_strict
+    = true\n\n# Maximum number of inbound peers\nmax_num_inbound_peers = 40\n\n# Maximum
+    number of outbound peers to connect to, excluding persistent peers\nmax_num_outbound_peers
+    = 10\n\n# List of node IDs, to which a connection will be (re)established ignoring
+    any existing limits\nunconditional_peer_ids = \"\"\n\n# Maximum pause when redialing
+    a persistent peer (if zero, exponential backoff is used)\npersistent_peers_max_dial_period
+    = \"0s\"\n\n# Time to wait before flushing messages out on the connection\nflush_throttle_timeout
+    = \"100ms\"\n\n# Maximum size of a message packet payload, in bytes\nmax_packet_msg_payload_size
+    = 1024\n\n# Rate at which packets can be sent, in bytes/second\nsend_rate = 5120000\n\n#
+    Rate at which packets can be received, in bytes/second\nrecv_rate = 5120000\n\n#
+    Set true to enable the peer-exchange reactor\npex = true\n\n# Seed mode, in which
+    node constantly crawls the network and looks for\n# peers. If another node asks
+    it for addresses, it responds and disconnects.\n#\n# Does not work if the peer-exchange
+    reactor is disabled.\nseed_mode = false\n\n# Comma separated list of peer IDs
+    to keep private (will not be gossiped to other peers)\nprivate_peer_ids = \"\"\n\n#
+    Toggle to disable guard against peers connecting from the same ip.\nallow_duplicate_ip
+    = true\n\n# Peer connection configuration.\nhandshake_timeout = \"20s\"\ndial_timeout
+    = \"3s\"\n\n#######################################################\n###          Mempool
+    Configuration Option          ###\n#######################################################\n[mempool]\n\nrecheck
+    = true\nbroadcast = true\nwal_dir = \"\"\n\n# Maximum number of transactions in
+    the mempool\nsize = 5000\n\n# Limit the total size of all txs in the mempool.\n#
+    This only accounts for raw transactions (e.g. given 1MB transactions and\n# max_txs_bytes=5MB,
+    mempool will only accept 5 transactions).\nmax_txs_bytes = 1073741824\n\n# Size
+    of the cache (used to filter transactions we saw earlier) in transactions\ncache_size
+    = 10000\n\n# Do not remove invalid transactions from the cache (default: false)\n#
+    Set to true if it's not possible for any invalid transaction to become valid\n#
+    again in the future.\nkeep-invalid-txs-in-cache = false\n\n# Maximum size of a
+    single transaction.\n# NOTE: the max size of a tx transmitted over the network
+    is {max_tx_bytes}.\nmax_tx_bytes = 1048576\n\n# Maximum size of a batch of transactions
+    to send to a peer\n# Including space needed by encoding (one varint per transaction).\n#
+    XXX: Unused due to https://github.com/tendermint/tendermint/issues/5796\nmax_batch_bytes
+    = 0\n\n#######################################################\n###         State
+    Sync Configuration Options        ###\n#######################################################\n[statesync]\n#
+    State sync rapidly bootstraps a new node by discovering, fetching, and restoring
+    a state machine\n# snapshot from peers instead of fetching and replaying historical
+    blocks. Requires some peers in\n# the network to take and serve state machine
+    snapshots. State sync is not attempted if the node\n# has any local state (LastBlockHeight
+    > 0). The node will have a truncated block history,\n# starting from the height
+    of the snapshot.\nenable = false\n\n# RPC servers (comma-separated) for light
+    client verification of the synced state machine and\n# retrieval of state data
+    for node bootstrapping. Also needs a trusted height and corresponding\n# header
+    hash obtained from a trusted source, and a period during which validators can
+    be trusted.\n#\n# For Cosmos SDK-based chains, trust_period should usually be
+    about 2/3 of the unbonding time (~2\n# weeks) during which they can be financially
+    punished (slashed) for misbehavior.\nrpc_servers = \"\"\ntrust_height = 0\ntrust_hash
+    = \"\"\ntrust_period = \"168h0m0s\"\n\n# Time to spend discovering snapshots before
+    initiating a restore.\ndiscovery_time = \"15s\"\n\n# Temporary directory for state
+    sync snapshot chunks, defaults to the OS tempdir (typically /tmp).\n# Will create
+    a new, randomly named directory within, and remove it when done.\ntemp_dir = \"\"\n\n#
+    The timeout duration before re-requesting a chunk, possibly from a different\n#
+    peer (default: 1 minute).\nchunk_request_timeout = \"10s\"\n\n# The number of
+    concurrent chunk fetchers to run (default: 1).\nchunk_fetchers = \"4\"\n\n#######################################################\n###
+    \      Fast Sync Configuration Connections       ###\n#######################################################\n[fastsync]\n\n#
+    Fast Sync version to use:\n#   1) \"v0\" (default) - the legacy fast sync implementation\n#
+    \  2) \"v1\" - refactor of v0 version for better testability\n#   3) \"v2\" -
+    complete redesign of v0, optimized for testability & readability\nversion = \"v0\"\n\n#######################################################\n###
+    \        Consensus Configuration Options         ###\n#######################################################\n[consensus]\n\nwal_file
+    = \"data/cs.wal/wal\"\n\n# How long we wait for a proposal block before prevoting
+    nil\ntimeout_propose = \"3s\"\n# How much timeout_propose increases with each
+    round\ntimeout_propose_delta = \"500ms\"\n# How long we wait after receiving +2/3
+    prevotes for “anything” (ie. not a single block or nil)\ntimeout_prevote = \"1s\"\n#
+    How much the timeout_prevote increases with each round\ntimeout_prevote_delta
+    = \"500ms\"\n# How long we wait after receiving +2/3 precommits for “anything”
+    (ie. not a single block or nil)\ntimeout_precommit = \"1s\"\n# How much the timeout_precommit
+    increases with each round\ntimeout_precommit_delta = \"500ms\"\n# How long we
+    wait after committing a block, before starting on the new\n# height (this gives
+    us a chance to receive some more precommits, even\n# though we already have +2/3).\ntimeout_commit
+    = \"5s\"\n\n# How many blocks to look back to check existence of the node's consensus
+    votes before joining consensus\n# When non-zero, the node will panic upon restart\n#
+    if the same consensus key was used to sign {double_sign_check_height} last blocks.\n#
+    So, validators should stop the state machine, wait for some blocks, and then restart
+    the state machine to avoid panic.\ndouble_sign_check_height = 0\n\n# Make progress
+    as soon as we have all the precommits (as if TimeoutCommit = 0)\nskip_timeout_commit
+    = false\n\n# EmptyBlocks mode and possible interval between empty blocks\ncreate_empty_blocks
+    = true\ncreate_empty_blocks_interval = \"0s\"\n\n# Reactor sleep duration parameters\npeer_gossip_sleep_duration
+    = \"100ms\"\npeer_query_maj23_sleep_duration = \"2s\"\n\n#######################################################\n###
+    \  Transaction Indexer Configuration Options     ###\n#######################################################\n[tx_index]\n\n#
+    What indexer to use for transactions\n#\n# The application will set which txs
+    to index. In some cases a node operator will be able\n# to decide which txs to
+    index based on configuration set in the application.\n#\n# Options:\n#   1) \"null\"\n#
+    \  2) \"kv\" (default) - the simplest possible indexer, backed by key-value storage
+    (defaults to levelDB; see DBBackend).\n# \t\t- When \"kv\" is chosen \"tx.height\"
+    and \"tx.hash\" will always be indexed.\nindexer = \"kv\"\n\n#######################################################\n###
+    \      Instrumentation Configuration Options     ###\n#######################################################\n[instrumentation]\n\n#
+    When true, Prometheus metrics are served under /metrics on\n# PrometheusListenAddr.\n#
+    Check out the documentation for the list of available metrics.\nprometheus = true\n\n#
+    Address to listen for Prometheus collector(s) connections\nprometheus_listen_addr
+    = \":26660\"\n\n# Maximum number of simultaneous connections.\n# If you want to
+    accept a larger number than the default, make sure\n# you increase your OS limits.\n#
+    0 - unlimited.\nmax_open_connections = 3\n\n# Instrumentation namespace\nnamespace
+    = \"tendermint\"\n\n##### EVM bridges options #####\n# Each EVM chain needs the
+    following\n# 1. `[[axelar_bridge_evm]]` # header\n# 2. `name`                  #
+    chain name (eg. \"Ethereum\")\n# 3. 'rpc_addr'              # EVM RPC endpoint
+    URL; chain maintainers set their own endpoint\n# 4. `start-with-bridge`     #
+    `true` to support this chain\n#\n# see https://docs.axelar.dev/#/validator-zone/external-chains/overview\n\n[[axelar_bridge_evm]]\nname
+    = \"Ethereum\"\n# name = \"ethereum-2\"  # Use this name for testnet-1\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"Avalanche\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"Fantom\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"Moonbeam\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"Polygon\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"binance\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n[[axelar_bridge_evm]]\nname = \"aurora\"\nrpc_addr
+    = \"\"\nstart-with-bridge = false\n\n##### message broadcasting options #####\n[broadcast]\n\nbroadcaster-account
+    = \"broadcaster\"\ngas-adjustment = 1.0\nmax-retries = 10\nmin-timeout = \"4s\""
+  genesis.json: |
+    {
+      "app_hash": "",
+      "app_state": {
+        "auth": {
+          "accounts": [
+            {
+              "@type": "/cosmos.auth.v1beta1.BaseAccount",
+              "account_number": "0",
+              "address": "axelar1r25hycaye0uz3k554mdu4a7dvc82uelj7y6ddn",
+              "pub_key": {
+                "@type": "/cosmos.crypto.secp256k1.PubKey",
+                "key": "A/VF70ClZNOSLsO0aZrGQ8K0jsEYkMUUYfYh0rL2g7DA"
+              },
+              "sequence": "1"
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.BaseAccount",
+              "account_number": "3",
+              "address": "axelar1yj0uwwv677v9f6la2u9qyszxp22wynwuxa20ch",
+              "pub_key": null,
+              "sequence": "0"
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "10",
+                "address": "axelar1yl6hdjhmkf37639730gffanpzndzdpmh23qpuz",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "transfer",
+              "permissions": ["minter", "burner"]
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "6",
+                "address": "axelar1fl48vsnmsdzcv85q5d2q4z5ajdha8yu334l8jk",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "bonded_tokens_pool",
+              "permissions": ["burner", "staking"]
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.BaseAccount",
+              "account_number": "2",
+              "address": "axelar12f2qn005d4vl03ssjq07quz6cja72w5ukuchv7",
+              "pub_key": null,
+              "sequence": "0"
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "7",
+                "address": "axelar1tygms3xhhs3yv487phx3dw4a95jn7t7l94rkyz",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "not_bonded_tokens_pool",
+              "permissions": ["burner", "staking"]
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "8",
+                "address": "axelar10d07y265gmmuvt4z0w9aw880jnsr700j7v9daj",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "gov",
+              "permissions": ["burner"]
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "5",
+                "address": "axelar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8r3j5z7",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "distribution",
+              "permissions": []
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.BaseAccount",
+              "account_number": "1",
+              "address": "axelar14naswuqea5ls8tfamj5e8cxw9aay3jmx3gudkr",
+              "pub_key": null,
+              "sequence": "0"
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "9",
+                "address": "axelar1m3h30wlvsf8llruxtpukdvsy0km2kum8vl3svp",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "mint",
+              "permissions": ["minter"]
+            },
+            {
+              "@type": "/cosmos.auth.v1beta1.ModuleAccount",
+              "base_account": {
+                "account_number": "4",
+                "address": "axelar17xpfvakm2amg962yls6f84z3kell8c5l5h4gqu",
+                "pub_key": null,
+                "sequence": "0"
+              },
+              "name": "fee_collector",
+              "permissions": []
+            }
+          ],
+          "params": {
+            "max_memo_characters": "256",
+            "sig_verify_cost_ed25519": "590",
+            "sig_verify_cost_secp256k1": "1000",
+            "tx_sig_limit": "10",
+            "tx_size_cost_per_byte": "10"
+          }
+        },
+        "axelarnet": {
+          "chains": [
+            {
+              "addr_prefix": "axelar",
+              "assets": [{ "denom": "uaxl", "min_amount": "100000" }],
+              "ibc_path": "",
+              "name": "Axelarnet"
+            }
+          ],
+          "collector_address": "",
+          "params": {
+            "route_timeout_window": "17000",
+            "transaction_fee_rate": "0.001000000000000000"
+          },
+          "pending_transfers": []
+        },
+        "bank": {
+          "balances": [
+            {
+              "address": "axelar1r25hycaye0uz3k554mdu4a7dvc82uelj7y6ddn",
+              "coins": [{ "amount": "5509990000", "denom": "uaxl" }]
+            },
+            {
+              "address": "axelar1yj0uwwv677v9f6la2u9qyszxp22wynwuxa20ch",
+              "coins": [{ "amount": "990000000000000", "denom": "uaxl" }]
+            },
+            {
+              "address": "axelar1fl48vsnmsdzcv85q5d2q4z5ajdha8yu334l8jk",
+              "coins": [{ "amount": "10000000", "denom": "uaxl" }]
+            },
+            {
+              "address": "axelar1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8r3j5z7",
+              "coins": [{ "amount": "10000", "denom": "uaxl" }]
+            },
+            {
+              "address": "axelar14naswuqea5ls8tfamj5e8cxw9aay3jmx3gudkr",
+              "coins": [{ "amount": "9994480000000", "denom": "uaxl" }]
+            }
+          ],
+          "denom_metadata": [],
+          "params": { "default_send_enabled": true, "send_enabled": [] },
+          "supply": [{ "amount": "1000000000000000", "denom": "uaxl" }]
+        },
+        "capability": {
+          "index": "2",
+          "owners": [
+            {
+              "index": "1",
+              "index_owners": {
+                "owners": [
+                  { "module": "ibc", "name": "ports/transfer" },
+                  { "module": "transfer", "name": "ports/transfer" }
+                ]
+              }
+            }
+          ]
+        },
+        "crisis": { "constant_fee": { "amount": "5000000000", "denom": "uaxl" } },
+        "distribution": {
+          "delegator_starting_infos": [
+            {
+              "delegator_address": "axelar1r25hycaye0uz3k554mdu4a7dvc82uelj7y6ddn",
+              "starting_info": {
+                "height": "0",
+                "previous_period": "1",
+                "stake": "10000000.000000000000000000"
+              },
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "delegator_withdraw_infos": [],
+          "fee_pool": {
+            "community_pool": [
+              { "amount": "200.000000000000000000", "denom": "uaxl" }
+            ]
+          },
+          "outstanding_rewards": [
+            {
+              "outstanding_rewards": [
+                { "amount": "9800.000000000000000000", "denom": "uaxl" }
+              ],
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "params": {
+            "base_proposer_reward": "0.010000000000000000",
+            "bonus_proposer_reward": "0.040000000000000000",
+            "community_tax": "0.020000000000000000",
+            "withdraw_addr_enabled": true
+          },
+          "previous_proposer": "axelarvalcons1650m9g6tmw726rh6d23cd2cgwuth7hvn9ews5d",
+          "validator_accumulated_commissions": [
+            {
+              "accumulated": {
+                "commission": [
+                  { "amount": "980.000000000000000000", "denom": "uaxl" }
+                ]
+              },
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "validator_current_rewards": [
+            {
+              "rewards": {
+                "period": "2",
+                "rewards": [
+                  { "amount": "8820.000000000000000000", "denom": "uaxl" }
+                ]
+              },
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "validator_historical_rewards": [
+            {
+              "period": "1",
+              "rewards": { "cumulative_reward_ratio": [], "reference_count": 2 },
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "validator_slash_events": []
+        },
+        "evidence": { "evidence": [] },
+        "evm": {
+          "chains": [
+            {
+              "burned_deposits": [],
+              "burner_infos": [],
+              "command_batches": [],
+              "command_queue": {},
+              "confirmed_deposits": [],
+              "gateway": {
+                "address": [
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                ],
+                "status": "STATUS_UNSPECIFIED"
+              },
+              "params": {
+                "burnable": "YIBgQFI0gBVgD1dgAID9W1BgQFFhAMI4A4BhAMKDOYEBYECBkFJgLJFgiVZbYEBRYwih7uFg4BuBUmAEgQGCkFJgAWABYKAbA4MWkGMIoe7hkGAkAWAAYEBRgIMDgWAAh4A7FYAVYG1XYACA/VtQWvEVgBVggFc9YACAPj1gAP1bUGAAklBQUP9bYACAYECDhQMSFWCbV2AAgP1bglFgAWABYKAbA4EWgRRgsVdgAID9W2Agk5CTAVGSlJKTUFBQVv4=",
+                "chain": "Ethereum",
+                "commands_gas_limit": 5000000,
+                "confirmation_height": "35",
+                "gateway_code": "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",
+                "min_voter_count": "1",
+                "network": "ropsten",
+                "networks": [
+                  { "id": "1", "name": "mainnet" },
+                  { "id": "3", "name": "ropsten" },
+                  { "id": "4", "name": "rinkeby" },
+                  { "id": "5", "name": "goerli" },
+                  { "id": "1337", "name": "ganache" }
+                ],
+                "revote_locking_period": "50",
+                "token_code": "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",
+                "transaction_fee_rate": "0.001000000000000000",
+                "voting_threshold": { "denominator": "100", "numerator": "51" }
+              },
+              "tokens": []
+            }
+          ]
+        },
+        "feegrant": { "allowances": [] },
+        "genutil": { "gen_txs": [] },
+        "gov": {
+          "deposit_params": {
+            "max_deposit_period": "3600s",
+            "min_deposit": [{ "amount": "100000000", "denom": "uaxl" }]
+          },
+          "deposits": [],
+          "proposals": [],
+          "starting_proposal_id": "1",
+          "tally_params": {
+            "quorum": "0.334000000000000000",
+            "threshold": "0.500000000000000000",
+            "veto_threshold": "0.334000000000000000"
+          },
+          "votes": [],
+          "voting_params": { "voting_period": "86400s" }
+        },
+        "ibc": {
+          "channel_genesis": {
+            "ack_sequences": [],
+            "acknowledgements": [],
+            "channels": [],
+            "commitments": [],
+            "next_channel_sequence": "0",
+            "receipts": [],
+            "recv_sequences": [],
+            "send_sequences": []
+          },
+          "client_genesis": {
+            "clients": [],
+            "clients_consensus": [],
+            "clients_metadata": [],
+            "create_localhost": false,
+            "next_client_sequence": "0",
+            "params": { "allowed_clients": ["06-solomachine", "07-tendermint"] }
+          },
+          "connection_genesis": {
+            "client_connection_paths": [],
+            "connections": [],
+            "next_connection_sequence": "0",
+            "params": { "max_expected_time_per_block": "30000000000" }
+          }
+        },
+        "mint": {
+          "minter": {
+            "annual_provisions": "0.000000000000000000",
+            "inflation": "0.000000000000000000"
+          },
+          "params": {
+            "blocks_per_year": "6311520",
+            "goal_bonded": "0.670000000000000000",
+            "inflation_max": "0.000000000000000000",
+            "inflation_min": "0.000000000000000000",
+            "inflation_rate_change": "0.000000000000000000",
+            "mint_denom": "uaxl"
+          }
+        },
+        "nexus": {
+          "chain_states": [
+            {
+              "activated": false,
+              "assets": ["uaxl"],
+              "chain": {
+                "key_type": "KEY_TYPE_NONE",
+                "module": "axelarnet",
+                "name": "Axelarnet",
+                "supports_foreign_assets": true
+              },
+              "maintainers": []
+            },
+            {
+              "activated": false,
+              "assets": ["wei"],
+              "chain": {
+                "key_type": "KEY_TYPE_MULTISIG",
+                "module": "evm",
+                "name": "Ethereum",
+                "supports_foreign_assets": true
+              },
+              "maintainers": []
+            }
+          ],
+          "chains": [
+            {
+              "key_type": "KEY_TYPE_NONE",
+              "module": "axelarnet",
+              "name": "Axelarnet",
+              "supports_foreign_assets": true
+            },
+            {
+              "key_type": "KEY_TYPE_MULTISIG",
+              "module": "evm",
+              "name": "Ethereum",
+              "supports_foreign_assets": true
+            }
+          ],
+          "fee": { "coins": [] },
+          "linked_addresses": [],
+          "nonce": "0",
+          "params": {
+            "chain_activation_threshold": {
+              "denominator": "100",
+              "numerator": "55"
+            }
+          },
+          "transfers": []
+        },
+        "params": null,
+        "permission": {
+          "gov_accounts": [
+            {
+              "address": "axelar12f2qn005d4vl03ssjq07quz6cja72w5ukuchv7",
+              "role": "ROLE_ACCESS_CONTROL"
+            }
+          ],
+          "governance_key": {
+            "public_keys": [
+              {
+                "@type": "/cosmos.crypto.secp256k1.PubKey",
+                "key": "A0kRUhRv5V/ht0xKWRxRTtPD1QnjPEz9R5/N7PbjbaM/"
+              },
+              {
+                "@type": "/cosmos.crypto.secp256k1.PubKey",
+                "key": "AkfJDWilArWNwP8gmj1Uqg/gnZCfPzDb8gAs9807I4We"
+              },
+              {
+                "@type": "/cosmos.crypto.secp256k1.PubKey",
+                "key": "A+CWaOdqcJsE2GJjdLqfUNBT65CNIAqqrbYIsXhiHpE3"
+              }
+            ],
+            "threshold": 2
+          },
+          "params": {}
+        },
+        "reward": {
+          "params": {
+            "external_chain_voting_inflation_rate": "0.000000000000000000",
+            "tss_relative_inflation_rate": "0.000000000000000000"
+          },
+          "pools": []
+        },
+        "slashing": {
+          "missed_blocks": [
+            {
+              "address": "axelarvalcons1650m9g6tmw726rh6d23cd2cgwuth7hvn9ews5d",
+              "missed_blocks": []
+            }
+          ],
+          "params": {
+            "downtime_jail_duration": "7200s",
+            "min_signed_per_window": "0.500000000000000000",
+            "signed_blocks_window": "35000",
+            "slash_fraction_double_sign": "0.020000000000000000",
+            "slash_fraction_downtime": "0.000100000000000000"
+          },
+          "signing_infos": [
+            {
+              "address": "axelarvalcons1650m9g6tmw726rh6d23cd2cgwuth7hvn9ews5d",
+              "validator_signing_info": {
+                "address": "axelarvalcons1650m9g6tmw726rh6d23cd2cgwuth7hvn9ews5d",
+                "index_offset": "1",
+                "jailed_until": "1970-01-01T00:00:00Z",
+                "missed_blocks_counter": "0",
+                "start_height": "0",
+                "tombstoned": false
+              }
+            }
+          ]
+        },
+        "staking": {
+          "delegations": [
+            {
+              "delegator_address": "axelar1r25hycaye0uz3k554mdu4a7dvc82uelj7y6ddn",
+              "shares": "10000000.000000000000000000",
+              "validator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu"
+            }
+          ],
+          "exported": true,
+          "last_total_power": "10",
+          "last_validator_powers": [
+            {
+              "address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu",
+              "power": "10"
+            }
+          ],
+          "params": {
+            "bond_denom": "uaxl",
+            "historical_entries": 10000,
+            "max_entries": 7,
+            "max_validators": 50,
+            "unbonding_time": "604800s"
+          },
+          "redelegations": [],
+          "unbonding_delegations": [],
+          "validators": [
+            {
+              "commission": {
+                "commission_rates": {
+                  "max_change_rate": "0.010000000000000000",
+                  "max_rate": "0.200000000000000000",
+                  "rate": "0.100000000000000000"
+                },
+                "update_time": "2022-02-08T17:39:44.562912Z"
+              },
+              "consensus_pubkey": {
+                "@type": "/cosmos.crypto.ed25519.PubKey",
+                "key": "s7LPqBf0xUlLymPBUGQfFWIxYC1pG9jZcnz6yv0cLxI="
+              },
+              "delegator_shares": "10000000.000000000000000000",
+              "description": {
+                "details": "",
+                "identity": "",
+                "moniker": "genesis",
+                "security_contact": "",
+                "website": ""
+              },
+              "jailed": false,
+              "min_self_delegation": "1",
+              "operator_address": "axelarvaloper1r25hycaye0uz3k554mdu4a7dvc82uelj79vglu",
+              "status": "BOND_STATUS_BONDED",
+              "tokens": "10000000",
+              "unbonding_height": "0",
+              "unbonding_time": "1970-01-01T00:00:00Z"
+            }
+          ]
+        },
+        "transfer": {
+          "denom_traces": [],
+          "params": { "receive_enabled": true, "send_enabled": true },
+          "port_id": "transfer"
+        },
+        "tss": {
+          "params": {
+            "external_multisig_threshold": { "denominator": "8", "numerator": "4" },
+            "heartbeat_period_in_blocks": "50",
+            "key_requirements": [
+              {
+                "key_role": "KEY_ROLE_MASTER_KEY",
+                "key_share_distribution_policy": "KEY_SHARE_DISTRIBUTION_POLICY_WEIGHTED_BY_STAKE",
+                "key_type": "KEY_TYPE_THRESHOLD",
+                "keygen_timeout": "250",
+                "keygen_voting_threshold": { "denominator": "6", "numerator": "5" },
+                "max_total_share_count": "50",
+                "min_keygen_threshold": { "denominator": "6", "numerator": "5" },
+                "min_total_share_count": "4",
+                "safety_threshold": { "denominator": "3", "numerator": "2" },
+                "sign_timeout": "250",
+                "sign_voting_threshold": { "denominator": "3", "numerator": "2" }
+              },
+              {
+                "key_role": "KEY_ROLE_SECONDARY_KEY",
+                "key_share_distribution_policy": "KEY_SHARE_DISTRIBUTION_POLICY_ONE_PER_VALIDATOR",
+                "key_type": "KEY_TYPE_THRESHOLD",
+                "keygen_timeout": "150",
+                "keygen_voting_threshold": {
+                  "denominator": "20",
+                  "numerator": "15"
+                },
+                "max_total_share_count": "20",
+                "min_keygen_threshold": { "denominator": "20", "numerator": "15" },
+                "min_total_share_count": "4",
+                "safety_threshold": { "denominator": "20", "numerator": "11" },
+                "sign_timeout": "150",
+                "sign_voting_threshold": { "denominator": "20", "numerator": "11" }
+              },
+              {
+                "key_role": "KEY_ROLE_MASTER_KEY",
+                "key_share_distribution_policy": "KEY_SHARE_DISTRIBUTION_POLICY_WEIGHTED_BY_STAKE",
+                "key_type": "KEY_TYPE_MULTISIG",
+                "keygen_timeout": "20",
+                "keygen_voting_threshold": {
+                  "denominator": "40",
+                  "numerator": "31"
+                },
+                "max_total_share_count": "50",
+                "min_keygen_threshold": { "denominator": "40", "numerator": "31" },
+                "min_total_share_count": "4",
+                "safety_threshold": { "denominator": "20", "numerator": "11" },
+                "sign_timeout": "20",
+                "sign_voting_threshold": { "denominator": "20", "numerator": "11" }
+              },
+              {
+                "key_role": "KEY_ROLE_SECONDARY_KEY",
+                "key_share_distribution_policy": "KEY_SHARE_DISTRIBUTION_POLICY_ONE_PER_VALIDATOR",
+                "key_type": "KEY_TYPE_MULTISIG",
+                "keygen_timeout": "20",
+                "keygen_voting_threshold": {
+                  "denominator": "20",
+                  "numerator": "15"
+                },
+                "max_total_share_count": "20",
+                "min_keygen_threshold": { "denominator": "20", "numerator": "15" },
+                "min_total_share_count": "4",
+                "safety_threshold": { "denominator": "20", "numerator": "11" },
+                "sign_timeout": "20",
+                "sign_voting_threshold": { "denominator": "20", "numerator": "11" }
+              }
+            ],
+            "max_missed_blocks_per_window": {
+              "denominator": "100",
+              "numerator": "5"
+            },
+            "max_sign_queue_size": "50",
+            "max_simultaneous_sign_shares": "100",
+            "suspend_duration_in_blocks": "8500",
+            "tss_signed_blocks_window": "100",
+            "unbonding_locking_key_rotation_count": "4"
+          }
+        },
+        "upgrade": {},
+        "vesting": {},
+        "vote": {
+          "params": {
+            "default_voting_threshold": { "denominator": "3", "numerator": "2" }
+          },
+          "poll_metadatas": []
+        }
+      },
+      "chain_id": "axelar-testnet-lisbon-3",
+      "consensus_params": {
+        "block": {
+          "max_bytes": "22020096",
+          "max_gas": "-1",
+          "time_iota_ms": "1000"
+        },
+        "evidence": {
+          "max_age_duration": "172800000000000",
+          "max_age_num_blocks": "100000",
+          "max_bytes": "1048576"
+        },
+        "validator": { "pub_key_types": ["ed25519"] },
+        "version": {}
+      },
+      "genesis_time": "2022-02-08T17:39:44.562912Z",
+      "initial_height": "690489",
+      "validators": [
+        {
+          "address": "D51FB2A34BDBBCAD0EFA6AA386AB0877177F5D93",
+          "name": "genesis",
+          "power": "10",
+          "pub_key": {
+            "type": "tendermint/PubKeyEd25519",
+            "value": "s7LPqBf0xUlLymPBUGQfFWIxYC1pG9jZcnz6yv0cLxI="
+          }
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: axelar-config
+  namespace: axelar
