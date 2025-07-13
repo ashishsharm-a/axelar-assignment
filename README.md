@@ -3,6 +3,7 @@
 ## Install
 
 ```
+cd helm/
 helm install axelar-node ./ --set image.tag=v1.2.1
 ```
 
