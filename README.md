@@ -16,7 +16,7 @@ helm install axelar-node ./ --set image.tag=v1.2.1
 
 - Chain data is stored in `/axelar/data` using a PersistentVolumeClaim (`500Gi`)
 
-## Add on:
+## Further Add-ons:
 
 1. Add pre-sync job to validate genesis.json checksum
 
