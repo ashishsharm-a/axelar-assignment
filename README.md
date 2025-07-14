@@ -24,6 +24,8 @@ helm install axelar-node ./ --set image.tag=v1.2.1
 
 3. Add PodAntiAffinity to ensure validator pods are not co-located (if using multiple)
 
-4. Implement RBAC strictly scoped to namespace axelar
+4. ArgoCD for hassle free deployment on k8s cluster
 
-5. Store sensitive keys like priv_validator_key.json in sealed secrets or HashiCorp Vault.
+5. Implement RBAC strictly scoped to namespace axelar
+
+6. Store sensitive keys like priv_validator_key.json in sealed secrets or HashiCorp Vault.
