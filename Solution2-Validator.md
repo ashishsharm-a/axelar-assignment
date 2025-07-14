@@ -14,6 +14,7 @@ Performance metrics: Must maintain uptime (>99.8%), regular heartbeats, successf
 
 # 2. Directory Layout & Purpose of Key Components
 
+```
 
 ├── config/
 │   ├── genesis.json     ← Bootstraps chain state
@@ -25,6 +26,7 @@ Performance metrics: Must maintain uptime (>99.8%), regular heartbeats, successf
 │   └── <tendermint/leveldb…>
 └── keys/                ← Validator keys (priv_validator_key.json)
 
+```
 
 **genesis.json** defines the initial state, chain-id, validators.
 
