@@ -4,7 +4,7 @@
 
 ```
 cd helm/
-helm install axelar-node ./ --set image.tag=v1.2.1
+helm install axelar-node ./
 ```
 
 ## Metrics
